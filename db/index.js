@@ -184,7 +184,14 @@ async function getPostById(postId) {
       WHERE id=$1;
     `, [postId]);
 
-    const { rows: tags } = await client.query(`
+    if (!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId"
+      };
+    }
+
+     const { rows: tags } = await client.query(`
       SELECT tags.*
       FROM tags
       JOIN post_tags ON tags.id=post_tags."tagId"
@@ -235,6 +242,7 @@ async function getPostsByTagName(tagName) {
       JOIN tags ON tags.id=post_tags."tagId"
       WHERE tags.name=$1;
     `, [tagName]);
+    console.log(tagName)
 
     return await Promise.all(postIds.map(
       post => getPostById(post.id)
@@ -352,5 +360,6 @@ module.exports = {
   getAllTags,
   createPostTag,
   addTagsToPost,
-  getUserByUsername
+  getUserByUsername,
+  getPostById
 }

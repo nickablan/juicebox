@@ -1,6 +1,7 @@
 const express = require('express');
 const usersRouter = express.Router();
 const { getAllUsers, getUserByUsername, createUser } = require('../db');
+const { JWT_SECRET } = process.env;
 
 const jwt = require('jsonwebtoken')
 // const recoverData = jwt.vertify(token, 'server secret');
@@ -34,7 +35,9 @@ usersRouter.use((req, res, next) => {
       const user = await getUserByUsername(username);
   
       if (user && user.password == password) {
-        const token = jwt.sign({ id: user.id, username: username }, 'server secret');
+        const token = jwt.sign({ id: user.id, username: username }, process.env.JWT_SECRET,{
+            expiresIn: '1w'
+          } );
 
 
         res.send({ message: "you're logged in!", token });
